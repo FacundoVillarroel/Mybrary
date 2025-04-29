@@ -22,12 +22,20 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: false }));
 
 const mongoose = require("mongoose");
-mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
-  useNewUrlParser: true,
-});
+
+mongoose
+  .connect(process.env.MONGODB_CONNECTION_STRING, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("❌ Error connecting to MongoDB:", err.message);
+    process.exit(1);
+  });
 const db = mongoose.connection;
-db.on("error", (error) => console.error(error));
-db.once("open", () => console.log("Connected to Mongoose"));
 
 app.use("/", indexRouter);
 app.use("/authors", authorRouter);
